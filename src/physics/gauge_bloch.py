@@ -105,10 +105,26 @@ def build_d1_bloch_exact(V: np.ndarray, E: list, F: list, k: np.ndarray, L_vec: 
             phase_curr = -orient_prev * phase_prev * d0_prev_v / (orient_curr * d0_curr_v)
             phases.append(phase_curr)
 
+        # Verify closure: the last vertex equation (v_0) must be satisfied
+        # by the holonomy H_f = 1 (Lemma 4.1). Check numerically.
+        e_last_idx, orient_last, _, _ = edges_info[-1]
+        e_first_idx, orient_first, _, _ = edges_info[0]
+        v0 = face[0]
+        closure = (orient_last * phases[-1] * d0_k[e_last_idx, v0]
+                   + orient_first * phases[0] * d0_k[e_first_idx, v0])
+        assert abs(closure) < 1e-10, \
+            "Holonomy closure failed on face %d: |residual| = %.2e" % (f_idx, abs(closure))
+
         for i, (e_idx, orient, _, _) in enumerate(edges_info):
             d1[f_idx, e_idx] = orient * phases[i]
 
     assert np.all(np.isfinite(d1)), "d1_bloch_exact contains NaN/Inf"
+
+    # Verify exactness: d₁(k) d₀(k) = 0 (Proposition 1)
+    residual = np.linalg.norm(d1 @ d0_k)
+    assert residual < 1e-10, \
+        "Exactness failed: ||d1(k) @ d0(k)|| = %.2e" % residual
+
     return d1
 
 

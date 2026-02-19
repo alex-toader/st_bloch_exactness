@@ -14,28 +14,17 @@ THEORY:
 
     where n_e is the crossing vector (+1 if crosses +boundary, -1 if crosses -, 0 if no crossing).
 
-STRUCTURAL LIMITATION (d₀/d₁ operators):
-    The twisted DEC operators d₀(k), d₁(k) break exactness at k≠0:
-        d₁(k) @ d₀(k) ≠ 0  for k ≠ 0
+EXACTNESS NOTE:
+    The standard per-edge phase assignment d₁ˢᵗᵈ(k) does not preserve
+    discrete exactness on unstructured meshes: d₁(k) d₀(k) ≠ 0 for k ≠ 0.
+    This is a structural property of independent edge-based phase lifting
+    (Proposition 1, Corollary 1 in the paper).
 
-    This is a STRUCTURAL property, not an implementation bug. The issue:
-    - d₀(k) puts phase exp(ik·n·L) on TARGET vertex of boundary-crossing edges
-    - For vertex v in face f, incoming edge has phase, outgoing edge has none
-    - Phases don't cancel: exp(ik·n·L) - 1 ≠ 0
+    For the exactness-preserving construction, see gauge_bloch.py which
+    derives d₁(k) from d₀(k) via a face-boundary recurrence.
 
-    Trade-off (cannot have both):
-    - Current formulation: correct k-dependent spectrum, broken exactness
-    - Gauge-covariant formulation: exactness preserved, k-independent spectrum
-
-    This affects only BlochComplex (deprecated) and standalone d₀/d₁ operators.
-
-RECOMMENDED CLASSES:
-    DisplacementBloch - builds dynamical matrix DIRECTLY via spring network,
-                        bypasses d₀/d₁ entirely, works correctly for all k.
-
-    Bath operators (A, B in bath.py) - also built directly, not via d₀/d₁.
-
-Jan 2026
+    DisplacementBloch builds the dynamical matrix directly via a spring
+    network and is not affected by this issue.
 """
 
 import warnings
@@ -72,13 +61,14 @@ def compute_edge_crossings(vertices: np.ndarray,
         crossings: (E, 3) array of crossing vectors
     """
     crossings = []
+    half_L = L / 2
     for (i, j) in edges:
         delta = vertices[j] - vertices[i]
         n = np.zeros(3, dtype=int)
         for axis in range(3):
-            if delta[axis] < -L/2:
+            if delta[axis] < -half_L:
                 n[axis] = +1  # wrapped from high to low
-            elif delta[axis] > L/2:
+            elif delta[axis] > half_L:
                 n[axis] = -1  # wrapped from low to high
         crossings.append(n)
     return np.array(crossings)
@@ -109,12 +99,13 @@ def compute_edge_geometry(vertices: np.ndarray,
         delta = vertices[j] - vertices[i]
         n = np.zeros(3, dtype=int)
 
-        # Unwrap periodic boundary
+        # Unwrap periodic boundary (minimum image convention)
+        half_L = L / 2
         for axis in range(3):
-            if delta[axis] < -L/2:
+            if delta[axis] < -half_L:
                 delta[axis] += L
                 n[axis] = +1
-            elif delta[axis] > L/2:
+            elif delta[axis] > half_L:
                 delta[axis] -= L
                 n[axis] = -1
 
@@ -189,14 +180,13 @@ def build_d1_bloch_standard(vertices: np.ndarray,
                             edge_lookup: Dict = None,
                             crossings: np.ndarray = None) -> np.ndarray:
     """
-    Build Bloch-twisted curl operator d₁(k) — standard phase assignment.
+    Build Bloch-twisted curl operator d₁(k) — standard per-edge phase assignment.
 
-    NOT valid for Maxwell gauge sector at k ≠ 0. Breaks exactness:
-    d₁(k) d₀(k) ≠ 0, which contaminates the spectrum and destroys
-    acoustic propagation. Fails SC cubic sanity check (0 acoustic bands
-    even after M-metric projection). See tests/physics/28_test_sc_cubic_maxwell_sanity.py.
+    This construction does not preserve discrete exactness for k ≠ 0:
+    d₁(k) d₀(k) ≠ 0 on unstructured meshes. The resulting spectral
+    pollution is documented in the paper (§3, Proposition 1).
 
-    For Maxwell gauge sector, use gauge_bloch.build_d1_bloch_exact instead.
+    For the exactness-preserving construction, use gauge_bloch.build_d1_bloch_exact.
 
     For face f using edge e in direction (v1 -> v2):
         d₁(k)[f, e] = sign × exp(i k·n_face·L)
@@ -298,8 +288,9 @@ class BlochComplex:
     Precomputed Bloch DEC complex for a periodic structure.
 
     .. deprecated::
-        BlochComplex has a known bug in crossing assignment - exactness
-        d₁(k)d₀(k) = 0 fails for k ≠ 0. Use DisplacementBloch instead.
+        BlochComplex uses the standard d₁(k) which does not preserve
+        exactness for k ≠ 0. Use DisplacementBloch for phonon calculations,
+        or gauge_bloch.build_d1_bloch_exact for Maxwell eigenproblems.
     """
 
     def __init__(self, vertices: np.ndarray,
@@ -316,8 +307,8 @@ class BlochComplex:
             a: lattice constant (default: estimated from edge lengths)
         """
         warnings.warn(
-            "BlochComplex has a known exactness bug for k≠0. "
-            "Use DisplacementBloch instead.",
+            "BlochComplex uses d₁ˢᵗᵈ(k) which does not preserve exactness. "
+            "Use gauge_bloch.build_d1_bloch_exact for Maxwell eigenproblems.",
             DeprecationWarning,
             stacklevel=2
         )
