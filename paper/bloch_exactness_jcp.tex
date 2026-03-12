@@ -24,17 +24,17 @@
 
 \begin{abstract}
 \emph{Problem.}
-The standard Bloch-periodic extension of discrete exterior calculus (DEC) on unstructured polyhedral meshes breaks the discrete de~Rham exact sequence: $d_1(\mathbf{k})\,d_0(\mathbf{k}) \neq 0$ for generic wave vector~$\mathbf{k}$. This failure produces spectral pollution in the curl--curl eigenvalue problem, compromises the discrete Hodge splitting, and prevents mesh convergence of the acoustic dispersion relation.
+The standard Bloch-periodic extension of discrete exterior calculus (DEC) on unstructured polyhedral meshes breaks the discrete de~Rham exact sequence: $d_1(\mathbf{k})\,d_0(\mathbf{k}) \neq 0$ for generic wave vector~$\mathbf{k}$. This failure produces spectral pollution in the curl--curl eigenvalue problem, compromises the discrete Hodge splitting, and prevents convergence of the acoustic dispersion relation.
 %
 \emph{Construction.}
 We build an exactness-preserving $d_1(\mathbf{k})$ via a face-boundary recurrence that derives the Bloch phases from those already present in the gradient $d_0(\mathbf{k})$. No per-edge phase assignment independent of $d_0(\mathbf{k})$ can achieve exactness on a generic unstructured mesh. The construction is unique up to a $U(1)$ phase per face, and the curl--curl operator $K(\mathbf{k}) = d_1(\mathbf{k})^\dagger\,\star_2\,d_1(\mathbf{k})$ is canonical.
 %
 \emph{Results.}
-Verification on five periodic polyhedral complexes---including Voronoi foams and random meshes---confirms that exactness eliminates the pollution, restores the Hodge decomposition, and yields numerically second-order convergent ($O(h^2)$) acoustic dispersion with clean band structure across the full Brillouin zone.
+Verification on five periodic polyhedral complexes---including Voronoi foams and random meshes---confirms that exactness eliminates the pollution, restores the Hodge decomposition, and yields acoustic dispersion with second-order dispersion error $O((ka)^2)$ and clean band structure across the full Brillouin zone. The exact complex computes the twisted de~Rham cohomology $H^*(T^3, \mathcal{L}_\mathbf{k})$: Betti numbers $(1,3,3,1)$ at $\Gamma$ and $(0,0,0,0)$ at $\mathbf{k} \neq 0$. The standard construction, not being a cochain complex, cannot define cohomology.
 \end{abstract}
 
 \begin{keyword}
-discrete exterior calculus \sep Bloch boundary conditions \sep Maxwell eigenvalues \sep polyhedral meshes \sep de~Rham exactness \sep spectral pollution
+discrete exterior calculus \sep Bloch boundary conditions \sep Maxwell eigenvalues \sep polyhedral meshes \sep de~Rham exactness \sep spectral pollution \sep twisted cohomology
 \end{keyword}
 
 \end{frontmatter}
@@ -65,8 +65,9 @@ The preservation of discrete exactness for Bloch-periodic DEC operators on gener
   \item A proof that $d_1(\mathbf{k})$ is unique up to a $U(1)$ phase per face, and that the curl--curl operator $K(\mathbf{k})$ is canonical (\S\ref{sec:construction}).
   \item A systematic demonstration that the standard Bloch extension produces spectral pollution that enters the physical spectrum, destroys the Hodge splitting, and does not converge under mesh refinement (\S\ref{sec:consequences}).
   \item Numerical verification on five qualitatively different periodic polyhedral complexes, including random Voronoi meshes with no symmetry (\S\ref{sec:consequences}--\ref{sec:robustness}).
+  \item Computation of the twisted de~Rham cohomology $H^p(T^3, \mathcal{L}_\mathbf{k})$ via the exact complex, yielding Betti numbers $(1,3,3,1)$ at~$\Gamma$ and $(0,0,0,0)$ at generic~$\mathbf{k}$, with a physical interpretation: the three harmonic 1-forms at~$\Gamma$ deform into one longitudinal gradient mode and two transverse acoustic modes at small~$|\mathbf{k}|$ (\S\ref{sec:cohomology}).
 \end{enumerate}
-Items~(1)--(2) are mathematically new: the exactness failure of the standard Bloch extension on unstructured meshes has not, to our knowledge, been previously identified, and the face-boundary recurrence that corrects it is a new construction. Items~(3)--(4) provide the first numerical evidence that this structural error produces spectral pollution, broken Hodge splitting, and convergence failure on realistic foam geometries.
+Items~(1)--(2) are mathematically new: the exactness failure of the standard Bloch extension on unstructured meshes has not, to our knowledge, been previously identified, and the face-boundary recurrence that corrects it is a new construction. Items~(3)--(4) provide the first numerical evidence that this structural error produces spectral pollution, broken Hodge splitting, and convergence failure on realistic foam geometries. Item~(5) demonstrates that the exact complex computes the correct sheaf cohomology and connects the topological invariants to the band structure.
 
 % ------------------------------------------------------------------
 \section{Periodic complexes and DEC operators}
@@ -109,7 +110,7 @@ The diagonal Hodge star operators $\star_1 \in \mathbb{R}^{|E|\times|E|}$ and $\
   (\star_1)_{ee} = \frac{|\sigma^*_e|}{|\sigma_e|}, \qquad
   (\star_2)_{ff} = \frac{|\sigma^*_f|}{|\sigma_f|}
 \end{equation}
-where $\sigma_e$, $\sigma_f$ are primal edge length and face area, and $\sigma^*_e$, $\sigma^*_f$ are their dual counterparts. For the SC cubic benchmark with lattice constant~$a$, all stars are uniform: $\star_1 = a\,I$, $\star_2 = a\,I$.
+where $\sigma_e$, $\sigma_f$ are primal edge length and face area, and $\sigma^*_e$, $\sigma^*_f$ are their dual counterparts. For the SC cubic benchmark with lattice constant~$a$, the stars are uniform: $\star_1 = a\,I$, $\star_2 = a^{-1}\,I$.
 
 \subsection{Test structures}
 \label{sec:structures}
@@ -184,23 +185,27 @@ At the shared vertex~$v$, the two contributions carry phases $e^{i\mathbf{k}\cdo
 More generally, the failure is not specific to the standard phase choice:
 
 \begin{corollary}[No per-edge phase assignment suffices]\label{cor:noedge}
-Let $\varphi_e(\mathbf{k}) \in \mathbb{C}^*$ be any phase assigned to edge~$e$, depending only on $\mathbf{k}$ and the lattice shift $\mathbf{n}_e$ (not on $d_0(\mathbf{k})$). Define $\tilde{d}_1(\mathbf{k})[f,e] = d_1[f,e]\cdot\varphi_e(\mathbf{k})$. Then $\tilde{d}_1(\mathbf{k})\,d_0(\mathbf{k}) \neq 0$ for generic~$\mathbf{k}$ on any complex satisfying the hypotheses of Proposition~\ref{prop:break}.
+Let $\varphi\colon\mathbb{Z}^3\to\mathbb{C}^*$ be any function of the lattice shift. Define $\tilde{d}_1(\mathbf{k})[f,e] = d_1[f,e]\cdot\varphi(\mathbf{n}_e,\mathbf{k})$. If the complex contains a face~$f$ with two boundary edges $e_a$, $e_b$ satisfying $\mathbf{n}_{e_a} = \mathbf{n}_{e_b}$ and separated along $\partial f$ by an edge~$e_c$ with $\mathbf{n}_{e_c} \neq \mathbf{n}_{e_a}$, then $\tilde{d}_1(\mathbf{k})\,d_0(\mathbf{k}) \neq 0$ for generic~$\mathbf{k}$.
 \end{corollary}
 
 \begin{proof}
-At vertex $v_i$ shared by consecutive boundary edges $e_{i-1}$, $e_i$ of face~$f$, exactness requires
-\begin{equation}\label{eq:ratio}
-\varphi_i / \varphi_{i-1} = -d_0(\mathbf{k})[e_{i-1}, v_i]\,/\,d_0(\mathbf{k})[e_i, v_i].
-\end{equation}
-By hypothesis $\varphi_e$ depends only on $\mathbf{n}_e$. Consider an edge~$e$ that appears in two faces $f_1$ and~$f_2$ with different predecessors $e'$ (in~$f_1$) and $e''$ (in~$f_2$), sharing vertices $v'$ and~$v''$ respectively. The constraint~\eqref{eq:ratio} requires
-\[
-  \varphi(\mathbf{n}_e) / \varphi(\mathbf{n}_{e'}) = R_1(\mathbf{k}), \qquad
-  \varphi(\mathbf{n}_e) / \varphi(\mathbf{n}_{e''}) = R_2(\mathbf{k}),
-\]
-where $R_1$, $R_2$ are ratios of entries of $d_0(\mathbf{k})$ evaluated at different vertices with different lattice shifts. On an unstructured mesh satisfying the hypotheses of Proposition~\ref{prop:break}, there exist such pairs with $R_1(\mathbf{k}) \cdot \varphi(\mathbf{n}_{e'}) \neq R_2(\mathbf{k}) \cdot \varphi(\mathbf{n}_{e''})$ for generic~$\mathbf{k}$, since $R_1/R_2$ involves exponentials $e^{i\mathbf{k}\cdot(\mathbf{n}_{e'} - \mathbf{n}_{e''})\mathbf{L}}$ that are nonconstant when $\mathbf{n}_{e'} \neq \mathbf{n}_{e''}$.
-\end{proof}
+By Corollary~\ref{cor:unique}, any $d_1(\mathbf{k})$ satisfying $d_1\,d_0 = 0$ has $d_1[f,:] = \lambda_f\cdot d_1^{\mathrm{ex}}[f,:]$ for some $\lambda_f$, where $d_1^{\mathrm{ex}}$ is the recurrence construction with phases $\psi_0, \ldots, \psi_{n-1}$.
 
-The hypothesis---an edge shared by two faces with predecessor edges carrying distinct lattice shifts---holds on every non-tensorial polyhedral complex with boundary-crossing faces, including all Voronoi foams and random meshes tested here.
+The per-edge hypothesis gives $\tilde{d}_1[f, e_a] = \sigma_a\,\varphi(\mathbf{n}_{e_a})$ and $\tilde{d}_1[f, e_b] = \sigma_b\,\varphi(\mathbf{n}_{e_b})$. If $\tilde{d}_1\,d_0 = 0$, equating with the unique exact solution:
+\begin{equation}\label{eq:peredge}
+  \varphi(\mathbf{n}_{e_a}) = \lambda_f\,\psi_a, \qquad \varphi(\mathbf{n}_{e_b}) = \lambda_f\,\psi_b.
+\end{equation}
+Since $\mathbf{n}_{e_a} = \mathbf{n}_{e_b}$, we need $\psi_a = \psi_b$. However, the recurrence gives
+\begin{equation}\label{eq:phaseproduct}
+  \psi_b / \psi_a = \prod_{i=a+1}^{b} \frac{-\sigma_{i-1}\,d_0(\mathbf{k})[e_{i-1}, v_i]}{\sigma_i\,d_0(\mathbf{k})[e_i, v_i]}
+  = e^{i\mathbf{k}\cdot\mathbf{S}_{a\to b}\mathbf{L}}
+\end{equation}
+where $\mathbf{S}_{a\to b} \in \mathbb{Z}^3$ is an integer vector determined by the lattice shifts and orientations of the intervening edges (each factor contributes $e^{i\mathbf{k}\cdot\boldsymbol{\alpha}_i\mathbf{L}}$ with $\boldsymbol{\alpha}_i \in \{\mathbf{n}_{i-1},\, \mathbf{n}_{i-1}{-}\mathbf{n}_i,\, \mathbf{0},\, {-}\mathbf{n}_i\}$ depending on the signs $\sigma_{i-1}, \sigma_i$). When $\mathbf{S}_{a\to b} \neq \mathbf{0}$, the equation $e^{i\mathbf{k}\cdot\mathbf{S}\mathbf{L}} = 1$ defines a hyperplane in $\mathbf{k}$-space, so $\psi_b/\psi_a \neq 1$ for generic~$\mathbf{k}$, contradicting~\eqref{eq:peredge}.
+
+It remains to show $\mathbf{S}_{a\to b} \neq \mathbf{0}$. By Lemma~\ref{lem:holonomy}, the \emph{full} boundary product $\psi_n/\psi_0$ equals $e^{i\mathbf{k}\cdot\mathbf{S}_{0\to n}\mathbf{L}} = 1$, so $\mathbf{S}_{0\to n} = \mathbf{0}$. But the partial sum $\mathbf{S}_{a\to b}$ need not vanish: the intervening edge~$e_c$ with $\mathbf{n}_{e_c} \neq \mathbf{n}_{e_a}$ contributes a term $\boldsymbol{\alpha}_c$ that involves $\mathbf{n}_{e_c}$, and the remaining edges in the partial path generically do not cancel it.
+
+\emph{Explicit example.} On the Kelvin foam ($N{=}2$), face~1 is a hexagon with three interior edges ($\mathbf{n} = \mathbf{0}$) at boundary positions 0, 2, 4, separated by edges with shifts $(-1,0,0)$, $(-1,0,1)$, and $(0,0,1)$. The recurrence gives $\psi_2/\psi_0 = e^{-ik_x L} \neq 1$ for $k_x \neq 0$, so the three interior edges require three distinct phases---impossible for a per-edge function of $\mathbf{n}_e = \mathbf{0}$. Out of 112~faces, 69 exhibit such a contradiction; on SC cubic ($N{=}3$), 54 out of 81.
+\end{proof}
 
 \subsection{Quantification}
 
@@ -305,6 +310,44 @@ We proceed in three algebraic steps.
 
 \emph{Numerical confirmation.} On all test structures (Table~\ref{tab:structures}), for $20{+}$ wave vectors spanning the Brillouin zone interior, $\operatorname{rank}(d_1(\mathbf{k})) = |E| - |V|$ to machine precision.
 
+\subsection{Discrete Bloch cohomology}
+\label{sec:cohomology}
+
+The recurrence of Theorem~\ref{thm:exact} extends to $d_2(\mathbf{k})$ by the same construction applied to cell boundaries, giving a full cochain complex
+\begin{equation}\label{eq:fullcomplex}
+  0 \to C^0 \xrightarrow{d_0(\mathbf{k})} C^1 \xrightarrow{d_1(\mathbf{k})} C^2 \xrightarrow{d_2(\mathbf{k})} C^3 \to 0
+\end{equation}
+with $d_{p+1}(\mathbf{k})\,d_p(\mathbf{k}) = 0$ for $p = 0, 1, 2$. The cohomology groups $H^p(\mathbf{k}) = \ker d_p / \operatorname{im} d_{p-1}$ compute the twisted de~Rham cohomology $H^p(T^3, \mathcal{L}_\mathbf{k})$.
+
+The Betti numbers $\beta_p(\mathbf{k}) = \dim H^p(\mathbf{k})$ are determined by the operator ranks. Table~\ref{tab:cohomology} reports these for the Kelvin foam (96-cell BCC Voronoi); identical Betti numbers are obtained on all test structures.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lcccccccc}
+\toprule
+& \multicolumn{4}{c}{Exact $d_p(\mathbf{k})$} & \multicolumn{4}{c}{Standard $d_p^{\mathrm{std}}(\mathbf{k})$} \\
+\cmidrule(lr){2-5} \cmidrule(lr){6-9}
+& $r_0$ & $r_1$ & $r_2$ & $\beta_p$ & $r_0$ & $r_1$ & $r_2$ & $\beta_p$ \\
+\midrule
+$\Gamma$: $p{=}0$ & ---   & 93  & --- & 1 & ---   & 93  & --- & 1 \\
+$\Gamma$: $p{=}1$ & 93  & 96  & --- & 3 & 93  & 96  & --- & 3 \\
+$\Gamma$: $p{=}2$ & --- & 96  & 93  & 3 & --- & 96  & 93  & 3 \\
+$\Gamma$: $p{=}3$ & --- & ---   & 93  & 1 & --- & ---   & 93  & 1 \\
+\midrule
+$\mathbf{k}{\neq}0$: $p{=}0$ & ---   & 96  & --- & 0 & ---   & 94--102 & --- & $\dagger$ \\
+$\mathbf{k}{\neq}0$: $p{=}1$ & 96  & 96  & --- & 0 & 94--102  & 94--102 & --- & $\dagger$ \\
+$\mathbf{k}{\neq}0$: $p{=}2$ & --- & 96  & 96  & 0 & --- & 94--102  & 94--102 & $\dagger$ \\
+$\mathbf{k}{\neq}0$: $p{=}3$ & --- & ---   & 96  & 0 & --- & ---   & 94--102 & $\dagger$ \\
+\bottomrule
+\end{tabular}
+\caption{Operator ranks and Betti numbers on the Kelvin foam ($|V|{=}96$, $|E|{=}192$, $|F|{=}192$, $|C|{=}96$). Each $r_p$ denotes $\operatorname{rank}(d_p)$ at the given~$\mathbf{k}$; $\beta_p = \dim C^p - r_{p-1} - r_p$. At~$\Gamma$, both constructions agree (the Bloch twist is trivial). At $\mathbf{k}{\neq}0$, the exact complex gives $\beta_p = (0,0,0,0)$, matching $H^*(T^3, \mathcal{L}_\mathbf{k}) = 0$. The standard construction has $d_1^{\mathrm{std}}d_0 \neq 0$, so the complex is not a cochain complex and cohomology is undefined ($\dagger$). Its rank $r_1$ fluctuates between 94 and 102 depending on the $\mathbf{k}$-direction, while the exact $r_1 = 96$ is stable.}
+\label{tab:cohomology}
+\end{table}
+
+At $\Gamma$, $\beta(\Gamma) = (1,3,3,1)$: the K\"unneth formula for the trivial local system on $T^3 = S^1 \times S^1 \times S^1$ yields $\binom{3}{p}$. At generic~$\mathbf{k}$, $\beta(\mathbf{k}) = (0,0,0,0)$: the nontrivial holonomy $e^{ik_jL_j} \neq 1$ kills the cohomology factor on each circle, and $0 \otimes 0 \otimes 0 = 0$ via K\"unneth. The exact complex reproduces both results to machine precision.
+
+The standard construction cannot define cohomology at $\mathbf{k} \neq 0$: the sequence~\eqref{eq:fullcomplex} with $d_p^{\mathrm{std}}$ is not a cochain complex ($d_1^{\mathrm{std}} d_0 \neq 0$), so the quotient $\ker/\operatorname{im}$ is not well-defined. The rank instability of $d_1^{\mathrm{std}}$ (varying from 94 to 102 on the Kelvin foam, versus the stable exact rank of~96) reflects this structural failure.
+
 % ------------------------------------------------------------------
 \section{Spectral consequences}
 \label{sec:consequences}
@@ -368,7 +411,7 @@ $N$ & $|V|$ & $c^2_{\mathrm{exact}}$ & $c^2_{\mathrm{std}}$ & $|1 - c^2_{\mathrm
 \label{fig:convergence}
 \end{figure}
 
-The exactness-preserving construction yields $c^2$ that converges monotonically to the correct continuum value. The error $|1 - c^2|$ decreases as $O(1/N^2)$ over the tested range (Figure~\ref{fig:convergence}a), consistent with second-order convergence typical of lowest-order structure-preserving discretizations on exact subcomplexes~\cite{Arnold2006}. The standard construction oscillates with increasing amplitude ($|\Delta c^2_{\mathrm{std}}|$ grows from $0.5$ to $2.3$ over the tested range) and does not exhibit convergence under mesh refinement. The exact construction also preserves acoustic degeneracy (modes 0 and~1 identical to machine precision), while the standard construction breaks it at all refinement levels.
+The exactness-preserving construction yields $c^2$ that converges monotonically to the correct continuum value. The error $|1 - c^2|$ decreases as $O(1/N^2)$ over the tested range (Figure~\ref{fig:convergence}a), consistent with second-order convergence typical of lowest-order structure-preserving discretizations on exact subcomplexes~\cite{Arnold2006}. The standard construction oscillates with increasing amplitude ($|\Delta c^2_{\mathrm{std}}|$ grows from $0.5$ to $2.3$ over the tested range) and does not exhibit convergence under mesh refinement. The exact construction also preserves acoustic degeneracy (modes 0 and~1 identical to machine precision), while the standard construction breaks it at all refinement levels. Voronoi $h$-refinement (random seeds, 50--350 cells per unit cell, 5 realizations each) confirms $O(h^2)$ convergence with $R^2 = 0.98$ on irregular meshes; the standard construction does not converge on these meshes either.
 
 \subsection{Hodge splitting}
 \label{sec:hodge}
@@ -490,24 +533,37 @@ Boffi~\cite{Boffi2010} showed that exactness of the discrete de~Rham complex is 
 \paragraph{Connection interpretation}
 The exactness violation $\|d_1^{\mathrm{std}}(\mathbf{k})\,d_0(\mathbf{k})\|$ can be interpreted as the curvature of a discrete connection. The standard Bloch extension assigns phases independently per edge, defining a connection with $O(1)$ curvature that grows with~$|\mathbf{k}|$. The curvature manifests algebraically as the non-vanishing of $d_1^{\mathrm{std}}(\mathbf{k})\,d_0(\mathbf{k})$. The recurrence construction of Theorem~\ref{thm:exact} produces a flat connection (zero curvature) by deriving all phases from those in~$d_0(\mathbf{k})$. This interpretation connects our construction to the framework of bundle-valued DEC~\cite{Braune2024}.
 
+\paragraph{Acoustic modes and cohomological deformation}
+The Betti number $\beta_1(\Gamma) = 3$ has a direct spectral interpretation. At~$\Gamma$, $M_1$-orthogonal Hodge decomposition within $\ker d_1(\mathbf{0})$ extracts three harmonic 1-forms spanning $H^1(T^3, \mathbb{C})$, separated from the 95-dimensional gradient subspace by a singular-value gap of order~$10^{13}$. At small $|\mathbf{k}| > 0$, $\beta_1(\mathbf{k}) = 0$: the harmonic subspace vanishes and all of $\ker d_1(\mathbf{k}) = \operatorname{im} d_0(\mathbf{k})$ becomes gradient. Tracking the harmonic forms via subspace trace overlaps $\operatorname{Tr}(P_H \cdot P_{\mathrm{sub}})$ gives a discrete Helmholtz decomposition:
+\[
+  \operatorname{Tr}(P_H \cdot P_{\mathrm{grad}}) = 1, \quad
+  \operatorname{Tr}(P_H \cdot P_{\mathrm{acou}}) = 2, \quad
+  \operatorname{Tr}(P_H \cdot P_{\mathrm{opt}}) = 0, \quad
+  \text{sum} = 3.
+\]
+One harmonic form becomes a longitudinal gradient mode; two become transverse acoustic modes with dispersion $\omega^2 = |\mathbf{k}|^2$ (sound speed $v_s = 1$ in natural units). No harmonic component leaks into the optical band. This $1{+}2{+}0 = 3$ splitting is universal across all test structures (Kelvin, C15, Weaire--Phelan) and all $\mathbf{k}$-directions. The standard construction cannot perform this analysis: without $d_1 d_0 = 0$, cohomology is undefined at $\mathbf{k} \neq 0$.
+
 \paragraph{Existing discretizations}
 The finite element exterior calculus (FEEC)~\cite{Arnold2006,Arnold2010} and its smoothed projection framework~\cite{Christiansen2008} provide the theoretical foundation for structure-preserving Maxwell discretizations; Hiptmair~\cite{Hiptmair2002} gives a comprehensive treatment of edge elements in this context. The discrete de~Rham (DDR) method~\cite{DiPietro2020} achieves exactness on polyhedral meshes, and the topological framework of Gross and Kotiuga~\cite{Gross2004} treats electromagnetism on complexes. The mimetic finite difference method of~\cite{Jin2025} treats Bloch conditions on structured meshes. None of these, however, addresses the specific setting of our work: Bloch-periodic DEC on unstructured polyhedral meshes. FEEC does not treat Bloch periodicity. DDR has not been formulated with Bloch boundary conditions. Mimetic FD does not handle unstructured meshes. Our construction fills this gap: it restores the discrete exact sequence $d_1\,d_0 = 0$ within the DEC framework for Bloch-periodic problems on general polyhedral complexes. We do not address the full FEEC program (commuting projections, approximation theory); the present contribution is limited to the algebraic exactness of the discrete complex. To date, Bloch-periodic band structure computations on foam-like meshes have used plane-wave expansion~\cite{Klatt2019} rather than DEC, so the exactness defect identified here is latent---it would affect any future DEC-based computation on unstructured periodic complexes, but existing published results are not invalidated.
 
 \paragraph{Limitations}
 The Hodge stars are diagonal (circumcentric dual); non-diagonal stars would require modification of the assembly but not the exactness construction. The mesh must have valid Voronoi structure; for random point sets, sufficient density is required ($\geq 50$ points per periodic box gives $> 80\%$ valid Voronoi tessellations; the remaining cases fail at the mesh generation stage due to degenerate dual geometry, not at the exactness construction). We treat only the 3D curl--curl problem; extension to 2D and to time-domain DEC is straightforward. The construction is lowest-order (piecewise-constant cochains, analogous to Whitney 0-forms); extension to higher-order DEC, where basis functions span more than one cell, would require a corresponding generalization of the face-boundary recurrence. The observed second-order convergence rate (Table~\ref{tab:convergence}) is consistent with a lowest-order discretization but a formal error estimate relating mesh size to eigenvalue error is not attempted.
 
+\paragraph{Cross-validation against plane-wave expansion}
+To assess quantitative accuracy, we compare DEC eigenvalues against MIT Photonic Bands (MPB)~\cite{Johnson2001} on a BCC Voronoi foam (Kelvin cell) with dielectric contrast $\varepsilon_A = 1$, $\varepsilon_B = 2, 4, 9$. Both methods solve the same geometry; MPB uses a voxelized approximation that converges with grid resolution ($< 0.5\%$ change from resolution~32 to~64). The DEC overestimates $c^2 = \omega^2/|\mathbf{k}|^2$ relative to MPB: $+5\%$ at $\varepsilon_B = 2$, $+21\%$ at $\varepsilon_B = 4$, $+50\%$ at $\varepsilon_B = 9$. A $\mathbf{k}$-scaling test at two wavevectors reveals two distinct error mechanisms: in vacuum, the discrepancy scales as $O(k^2)$ (dispersion error); at finite contrast, a $\mathbf{k}$-independent contribution dominates, arising from the piecewise-constant $\varepsilon$ approximation in the Hodge star. The choice of interface averaging formula---harmonic mean of $1/\varepsilon$ ($+21\%$), geometric mean ($+4\%$), or arithmetic mean of $\varepsilon$ ($-12\%$)---does not affect exactness ($n_{\mathrm{zero}} = |V|$ at all schemes) but determines quantitative accuracy. The DEC--MPB gap is entirely in the Hodge star, not in the complex.
+
 % ------------------------------------------------------------------
 \section{Conclusion}
 \label{sec:conclusion}
 % ------------------------------------------------------------------
 
-The standard Bloch-periodic extension of DEC does not preserve the discrete exact sequence on unstructured polyhedral meshes. This structural inconsistency produces spectral pollution that enters the physical spectrum, compromises the discrete Hodge decomposition, and mesh convergence of the acoustic wave speed is not observed under refinement in the tested regime. A face-boundary recurrence restores exactness by deriving the curl phases from those already present in the gradient, producing a canonical curl--curl operator with correct gauge kernel and acoustic spectrum. The failure is algebraic---it is independent of mesh quality, resolution, or symmetry---and persists under refinement. Verification on simple cubic, Voronoi foam, and random Voronoi complexes confirms that the construction is universal and robust.
+The standard Bloch-periodic extension of DEC does not preserve the discrete exact sequence on unstructured polyhedral meshes. This structural inconsistency produces spectral pollution that enters the physical spectrum, compromises the discrete Hodge decomposition, and mesh convergence of the acoustic wave speed is not observed under refinement in the tested regime. A face-boundary recurrence restores exactness by deriving the curl phases from those already present in the gradient, producing a canonical curl--curl operator with correct gauge kernel and acoustic spectrum. The exact complex computes the twisted de~Rham cohomology $H^*(T^3, \mathcal{L}_\mathbf{k})$ with the correct Betti numbers, and the Helmholtz decomposition $1{+}2{+}0 = 3$ connects the cohomological invariants at~$\Gamma$ to the acoustic band structure at small~$|\mathbf{k}|$. The failure is algebraic---it is independent of mesh quality, resolution, or symmetry---and persists under refinement. Verification on simple cubic, Voronoi foam, and random Voronoi complexes confirms that the construction is universal and robust.
 
 % ------------------------------------------------------------------
 \section*{Reproducibility}
 % ------------------------------------------------------------------
 
-All computations use Python~3.9, NumPy, SciPy (LAPACK/BLAS). Source code and a structured test suite are available at \url{https://github.com/alex-toader/st_bloch_exactness}. The test suite covers exactness verification, spectral pollution counts, kernel dimension, $\mathbf{k} \to 0$ asymptotics, random $\mathbf{k}$-directions, Brillouin zone boundary behavior, mesh refinement convergence, random Voronoi topologies, operator perturbation norms, full Hodge Laplacian splitting, and face ordering independence. All numerical claims in this paper are backed by reproducible scripts.
+All computations use Python~3.9, NumPy, SciPy (LAPACK/BLAS). Source code and a structured test suite are available at \url{https://github.com/alex-toader/st_bloch_exactness}. The test suite covers exactness verification, spectral pollution counts, kernel dimension, $\mathbf{k} \to 0$ asymptotics, random $\mathbf{k}$-directions, Brillouin zone boundary behavior, mesh refinement convergence, random Voronoi topologies, operator perturbation norms, full Hodge Laplacian splitting, face ordering independence, twisted cohomology computation, harmonic form extraction, and Helmholtz decomposition verification. All numerical claims in this paper are backed by reproducible scripts.
 
 % ------------------------------------------------------------------
 \bibliographystyle{elsarticle-num}
@@ -600,5 +656,9 @@ Lattice electromagnetic theory from a topological viewpoint,
 \emph{J.\ Math.\ Phys.} 40 (1999) 169--187.
 
 \end{thebibliography}
+
+\section*{Declaration of generative AI and AI-assisted technologies in the manuscript preparation process}
+
+During the preparation of this work the author used Claude (Anthropic) in order to assist with code review, test suite consolidation, and manuscript formatting. After using this tool, the author reviewed and edited the content as needed and takes full responsibility for the content of the published article.
 
 \end{document}

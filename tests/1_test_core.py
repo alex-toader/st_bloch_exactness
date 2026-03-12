@@ -93,12 +93,12 @@ Expected output (macOS, Python 3.9.6, SciPy 1.13):
       V=27, E=81, F=81
 
           k/BZ     dir   ||d1d0||_ex  ||d1d0||_std  n0_ex  n0_std  n_spur     c2_ex
-          0.05   [100]      1.00e-16      3.22e+00     27      22       5    3.9963
-          0.05   [111]      6.30e-17      3.16e+00     27      14      13    3.9988
-          0.10   [100]      8.98e-17      6.21e+00     27      22       5    3.9854
-          0.10   [111]      8.45e-16      6.24e+00     27      14      13    3.9951
-          0.15   [100]      6.84e-18      8.76e+00     27      22       5    3.9672
-          0.15   [111]      8.68e-16      9.16e+00     27      14      13    3.9890
+          0.05   [100]      1.00e-16      3.22e+00     27      22       5    0.9991
+          0.05   [111]      6.30e-17      3.16e+00     27      14      13    0.9997
+          0.10   [100]      8.98e-17      6.21e+00     27      22       5    0.9963
+          0.10   [111]      8.45e-16      6.24e+00     27      14      13    0.9988
+          0.15   [100]      6.84e-18      8.76e+00     27      22       5    0.9918
+          0.15   [111]      8.68e-16      9.16e+00     27      14      13    0.9973
 
     ======================================================================
       HODGE SPLITTING: Full Hodge Laplacian on 1-forms
@@ -210,8 +210,9 @@ def analyze_structure(name, data):
 
             c2_std = eigs_st[np.abs(eigs_st) >= thresh_st][0] / k2 if n_spur >= 0 else float('nan')
 
-            Q, _ = np.linalg.qr(d0_k, mode='reduced')
-            P_grad = Q @ Q.conj().T
+            M = np.diag(star1)
+            Md0 = M @ d0_k
+            P_grad = d0_k @ np.linalg.solve(d0_k.conj().T @ Md0, Md0.conj().T)
 
             spur_leak = []
             for j in range(n_zero_std, n_zero_ex):
@@ -281,8 +282,8 @@ def test_hodge_splitting():
             idx = np.argsort(np.real(eigs_st))
             vecs_st = vecs_st[:, idx]
 
-            Q, _ = np.linalg.qr(d0_k, mode='reduced')
-            P_grad = Q @ Q.conj().T
+            Md0 = M @ d0_k
+            P_grad = d0_k @ np.linalg.solve(d0_k.conj().T @ Md0, Md0.conj().T)
 
             n_mixed_ex = 0
             n_mixed_st = 0
@@ -305,10 +306,12 @@ def build_sc_data(N=3):
     V, E, F, _ = build_sc_supercell_periodic(N)
     L = 2.0 * N
     L_vec = np.array([L, L, L])
-    # SC cubic: lattice constant a = 2.0, uniform Hodge stars ⋆₁ = ⋆₂ = a
+    # SC cubic: lattice constant a = 2.0, uniform Hodge stars
+    # ⋆₁ = dual_face_area / edge_length = a²/a = a
+    # ⋆₂ = dual_edge_length / face_area = a/a² = 1/a
     a = 2.0
     star1 = np.full(len(E), a)
-    star2 = np.full(len(F), a)
+    star2 = np.full(len(F), 1.0 / a)
     return V, E, F, L, L_vec, star1, star2
 
 
