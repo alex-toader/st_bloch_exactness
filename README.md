@@ -1,5 +1,5 @@
 # st_bloch_exactness
-
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18704278.svg)](https://doi.org/10.5281/zenodo.18704278)
 Exactness-preserving discrete Maxwell operators on periodic polyhedral complexes.
 
 **Author:** Alexandru Toader (toader_alexandru@yahoo.com)
